@@ -4,11 +4,11 @@ clear = lambda : os.system('clear')
 
 
 def get_contacts():
-    contacts = globals()['contacts']
-    if contacts is None :
-        return []
+
+    if 'contacts' in globals():
+        return globals()['contacts']
     else:
-        return contacts
+        return []
 
 def set_contacts(contacts):    
     globals()['contacts'] = contacts
@@ -39,8 +39,12 @@ def open_file():
     set_contacts(contacts)
 
 def save_file():    
-    with open('phonebook.txt', 'w') as file:
-        contacts = get_contacts()
+    contacts = get_contacts()
+    if len(contacts) == 0:
+        answer = input('У вас открыто 0 контактов. Вы уверены? \n Введите y - да n - нет: ')
+        if answer.lower() != 'y':
+            return
+    with open('phonebook.txt', 'w') as file:        
         for line in contacts:
             file.write(contact_to_string(line, ';'))            
     print(f'Контакт(ы) {len(contacts)} сохранен(ы)')
@@ -52,6 +56,8 @@ def print_file():
     for line in contacts:
         print(f'{i}. {contact_to_string(line)}')
         i += 1
+    if len(contacts) == 0:
+        print('Файл контактов пуст или не открыт')
 
 def create_contact():
     result = input('Введите Имя Телефон Комментарий (через пробел): ')
@@ -83,21 +89,27 @@ def find_contact():
     
 
 def filter_contact(contact, text):
-    return (contact['Name'] == text or contact['Tel'] == text or contact['Comment'] == text)
+    return text.lower() in contact_to_string(contact).lower()
 
     
 
 
 def del_contact():
     print_file()
-    result = int(input('Укажите какой контакт надо удалить: '))
     contacts = get_contacts()
-    clear()
-    contact_to_del = contacts[result-1]
-    print(contact_to_string(contact_to_del))
-    confirm = input('Удалить контакт? Нажмите y если да, n если нет: ')
+    if len(contacts) == 0:
+        return
+    else:
+        result = int(input('Укажите какой контакт надо удалить: '))
+        clear()
+        if result > len(contacts):
+            print('Указан некорректный контакт')
+            return
+        contact_to_del = contacts[result-1]
+        print(contact_to_string(contact_to_del))
+        answer = input('Удалить контакт? \n Введите y если да, n если нет: ')
 
-    if confirm == 'y':
-        contacts.remove(contact_to_del)
-    print('Контакт удален')
+        if answer.lower == 'y':
+            contacts.remove(contact_to_del)
+            print('Контакт удален')
 
